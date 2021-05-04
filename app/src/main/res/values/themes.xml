@@ -14,11 +14,13 @@
     </style>
 
     <!-- Customize MY theme here. -->
-    <style name="CustomNoActionBarTheme" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
+    <style name="CustomNoActionBarTheme" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">@color/colorPrimaryDark</item>
     </style>
     <style name="CustomToolBarStyle">
+        <!-- title text color -->
         <item name="android:textColorPrimary">#FFFFFF</item>
-        <item name="android:colorControlNormal">#FFFFFF</item>
+        <!-- button color -->
+        <item name="android:colorControlNormal">@color/colorPrimaryLight</item>
     </style>
 </resources>
