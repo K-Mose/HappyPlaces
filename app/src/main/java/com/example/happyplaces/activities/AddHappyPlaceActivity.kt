@@ -18,7 +18,9 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.example.happyplaces.R
+import com.example.happyplaces.database.DatabaseHandler
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
+import com.example.happyplaces.models.HappyPlaceModel
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -89,7 +91,34 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 pictureDialog.show()
             }
             R.id.btn_save ->{
+                binding.apply {
+                    when{
+                        etTitle.text.isNullOrEmpty() -> Toast.makeText(this@AddHappyPlaceActivity, "Please Enter Title", Toast.LENGTH_SHORT).show()
+                        etDescription.text.isNullOrEmpty() -> Toast.makeText(this@AddHappyPlaceActivity, "Please Enter Description", Toast.LENGTH_SHORT).show()
+                        etLocation.text.isNullOrEmpty() -> Toast.makeText(this@AddHappyPlaceActivity, "Please Enter Location", Toast.LENGTH_SHORT).show()
+                        savedPath == null -> Toast.makeText(this@AddHappyPlaceActivity, "Please Select an Image", Toast.LENGTH_SHORT).show()
+                        else -> {
+                            val happyPlaceMode = HappyPlaceModel(
+                                    0,
+                                    etTitle.text.toString(),
+                                    savedPath.toString(),
+                                    etDescription.text.toString(),
+                                    etDate.text.toString(),
+                                    etLocation.text.toString(),
+                                    mLatitude,
+                                    mLongitude
+                            )
+                            val dbHandler = DatabaseHandler(this@AddHappyPlaceActivity)
+                            val addHappyPlaceResult = dbHandler.addHappyPlace(happyPlaceMode)
+                            if(addHappyPlaceResult > 0){ // 정상
+                                Toast.makeText(this@AddHappyPlaceActivity, "The happy place details are inserted successfully", Toast.LENGTH_SHORT).show()
+                                finish()
+                            }
+                        }
+                    }
 
+
+                }
             }
         }
     }
