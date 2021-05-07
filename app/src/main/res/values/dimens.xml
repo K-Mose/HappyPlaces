@@ -16,4 +16,6 @@
     <dimen name="button_radius">10dp</dimen>
     <dimen name="add_place_image_shape_radius">3dp</dimen>
     <dimen name="image_border_stroke_size" type="dimen" format="float">0.5dp</dimen>
+    <dimen name="no_records_available_text_size">22sp</dimen>
+    <dimen name="row_text_size">18sp</dimen>
 </resources>
