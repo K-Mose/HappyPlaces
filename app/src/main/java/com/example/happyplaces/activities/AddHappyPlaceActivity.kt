@@ -1,4 +1,4 @@
-package com.example.happyplaces
+package com.example.happyplaces.activities
 
 import android.Manifest
 import android.app.Activity
@@ -17,6 +17,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import com.example.happyplaces.R
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -27,13 +28,16 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityAddHappyPlaceBinding
     private var cal = Calendar.getInstance()
+    private var savedPath: Uri? = null
+    private var mLongitude: Double = 0.0
+    private var mLatitude: Double = 0.0
+
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +58,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             }
             etDate.setOnClickListener(this@AddHappyPlaceActivity)
             tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
+            btnSave.setOnClickListener(this@AddHappyPlaceActivity)
         }
 
 
@@ -62,7 +67,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     // onClick()를 각각 정해주지 않고 통합해서 사용 when id로 구분
     override fun onClick(v: View?) {
         when(v!!.id){
-            R.id.et_date->{
+            R.id.et_date ->{
                 DatePickerDialog(
                     this@AddHappyPlaceActivity,
                     dateSetListener,
@@ -70,7 +75,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     cal.get(Calendar.MONTH),
                     cal.get(Calendar.DAY_OF_MONTH)).show()
             }
-            R.id.tv_add_image->{
+            R.id.tv_add_image ->{
                 val pictureDialog = AlertDialog.Builder(this)
                 pictureDialog.setTitle("Select Action")
                 val pictureDialogItems = arrayOf("Select photo from Gallery",
@@ -82,6 +87,9 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
                 pictureDialog.show()
+            }
+            R.id.btn_save ->{
+
             }
         }
     }
@@ -137,7 +145,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     val contentURI = data.data // Uri getData()
                     try{
                         val selectedImageBitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI) // deprecated 됐지만 아직 대안이 없어서 사용함
-                        val savedPath = saveImageToInternalStorage(selectedImageBitmap)
+                        savedPath = saveImageToInternalStorage(selectedImageBitmap)
                         Log.e("Saved image : ", "Path :: $savedPath")
                         binding.ivPlaceImage.setImageBitmap(selectedImageBitmap)
                     }catch (e: IOException){
@@ -149,7 +157,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             }else if(requestCode == CAMERA){
                 if(data != null){
                     val thumbnail: Bitmap = data!!.extras!!.get("data") as Bitmap
-                    val savedPath = saveImageToInternalStorage(thumbnail)
+                    savedPath = saveImageToInternalStorage(thumbnail)
                     Log.e("Saved image : ", "Path :: $savedPath")
                     binding.ivPlaceImage.setImageBitmap(thumbnail)
                 }
