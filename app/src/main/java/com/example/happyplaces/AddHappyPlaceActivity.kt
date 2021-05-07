@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -72,7 +73,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 pictureDialog.setItems(pictureDialogItems){ _, which ->
                     when(which){
                         0-> choosePhotoFromGallery()
-                        1-> Toast.makeText(this@AddHappyPlaceActivity, "Camera selection coming soon... ", Toast.LENGTH_SHORT).show()
+                        1-> takePhotoFromCamera()
                     }
                 }
                 pictureDialog.show()
@@ -102,6 +103,27 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         }).onSameThread().check()
     }
 
+    private fun takePhotoFromCamera(){
+        Dexter.withActivity(this@AddHappyPlaceActivity).withPermissions(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
+        ).withListener(object: MultiplePermissionsListener{
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                Log.d("CAMERAINTENT:", "onPermission")
+                if(report!!.areAllPermissionsGranted()){
+                    Log.d("CAMERAINTENT:", "areAllPermissionsGranted")
+                    val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    startActivityForResult(cameraIntent, CAMERA)
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                showRationalDialogForPermissions()
+            }
+        }).onSameThread().check()
+    }
+
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK){ // Intent가 정상 작동
@@ -116,6 +138,11 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                         Toast.makeText(this@AddHappyPlaceActivity, "Failed to load the Image from gallery", Toast.LENGTH_SHORT).show()
                     }
 
+                }
+            }else if(requestCode == CAMERA){
+                if(data != null){
+                    val thumbnail: Bitmap = data!!.extras!!.get("data") as Bitmap
+                    binding.ivPlaceImage.setImageBitmap(thumbnail)
                 }
             }
         }
@@ -147,5 +174,6 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         private const val GALLERY = 1
+        private const val CAMERA = 2
     }
 }
