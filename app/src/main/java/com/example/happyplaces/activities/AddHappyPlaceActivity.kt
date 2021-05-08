@@ -37,8 +37,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityAddHappyPlaceBinding
     private var cal = Calendar.getInstance()
     private var savedPath: Uri? = null
-    private var mLongitude: Double = 0.0
     private var mLatitude: Double = 0.0
+    private var mLongitude: Double = 0.0
 
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +58,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 updateDateInView()
             }
+            updateDateInView() // 현재 날짜 생성
             etDate.setOnClickListener(this@AddHappyPlaceActivity)
             tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
             btnSave.setOnClickListener(this@AddHappyPlaceActivity)

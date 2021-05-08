@@ -31,9 +31,10 @@ class DatabaseHandler(context: Context) :
                 + KEY_ID + " integer primary key,"
                 + KEY_TITLE + " text,"
                 + KEY_IMAGE + " text,"
-                + KEY_DESCRIPTION + " text"
-                + KEY_LOCATION + " text"
-                + KEY_LATITUDE + " text"
+                + KEY_DESCRIPTION + " text,"
+                + KEY_DATE + " text,"
+                + KEY_LOCATION + " text,"
+                + KEY_LATITUDE + " text,"
                 + KEY_LONGITUDE + " text )")
         db?.execSQL(CREATE_HAPPY_PLACE_TABLE)
     }
@@ -43,17 +44,17 @@ class DatabaseHandler(context: Context) :
         onCreate(db)
     }
 
-    fun addHappyPlace(happyplace: HappyPlaceModel): Long{
+    fun addHappyPlace(happyPlace: HappyPlaceModel): Long{
         val db = this.writableDatabase
 
         val contentValues = ContentValues()
-        contentValues.put(KEY_DATE, happyplace.date)
-        contentValues.put(KEY_DESCRIPTION, happyplace.description)
-        contentValues.put(KEY_IMAGE, happyplace.image)
-        contentValues.put(KEY_LATITUDE, happyplace.latitude.toString())
-        contentValues.put(KEY_LOCATION, happyplace.location)
-        contentValues.put(KEY_LONGITUDE, happyplace.longitude.toString())
-        contentValues.put(KEY_TITLE, happyplace.title)
+        contentValues.put(KEY_TITLE, happyPlace.title)
+        contentValues.put(KEY_IMAGE, happyPlace.image)
+        contentValues.put(KEY_DATE, happyPlace.date)
+        contentValues.put(KEY_DESCRIPTION, happyPlace.description)
+        contentValues.put(KEY_LOCATION, happyPlace.location)
+        contentValues.put(KEY_LATITUDE, happyPlace.latitude)
+        contentValues.put(KEY_LONGITUDE, happyPlace.longitude)
 
         val success = db.insert(TABLE_HAPPY_PLACE, null, contentValues)
 
