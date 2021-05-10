@@ -8,28 +8,55 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.happyplaces.databinding.PlaceRowBinding
 import com.example.happyplaces.models.HappyPlaceModel
 
-class HappyPlaceAdapter(val context: Context, val items: ArrayList<HappyPlaceModel>) :
-    RecyclerView.Adapter<HappyPlaceAdapter.ViewHolder>(){
+class HappyPlaceAdapter(
+        val context: Context,
+        val list: ArrayList<HappyPlaceModel>
+) : RecyclerView.Adapter<HappyPlaceAdapter.MyViewHolder>(){
+
+    private var onClickListener: OnClickListener? = null
 
     private lateinit var binding: PlaceRowBinding
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        binding = PlaceRowBinding.inflate(LayoutInflater.from(context), parent, false)
-        return ViewHolder(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        // 기존
+        // LayoutInflater.from(context).inflate(R.layout.place_row, parent, false))
+        binding = PlaceRowBinding.inflate(
+                        LayoutInflater.from(context),
+                        parent,
+                        false
+                )
+        return MyViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return list.size
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.apply {
-            ivRowPlaceImage.setImageURI(Uri.parse(items[position].image))
-            tvTitle.text = items[position].title
-            tvDescription.text = items[position].description
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        val model = list[position]
+        if(holder is MyViewHolder){
+            holder.binding.apply {
+                ivRowPlaceImage.setImageURI(Uri.parse(model.image))
+                tvTitle.text = model.title
+                tvDescription.text = model.description
+            }
+            holder.itemView.setOnClickListener {
+                if(onClickListener != null){
+                    onClickListener!!.onClick(position, model)
+                }
+            }
         }
     }
 
-    class ViewHolder(val binding: PlaceRowBinding) : RecyclerView.ViewHolder(binding.root){
-
+    // bounded function with interface
+    fun setOnClickListener(onClickListener: OnClickListener){
+        this.onClickListener = onClickListener
     }
+
+    // interface
+    // 자세한 개념은 188강 11:54
+    interface OnClickListener{
+        fun onClick(position: Int, model: HappyPlaceModel)
+    }
+
+    class MyViewHolder(val binding: PlaceRowBinding) : RecyclerView.ViewHolder(binding.root)
 }

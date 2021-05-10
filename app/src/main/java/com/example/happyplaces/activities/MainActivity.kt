@@ -1,5 +1,6 @@
 package com.example.happyplaces.activities
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,32 +20,54 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.apply {
             fabAddHappyPlace.setOnClickListener {
-                startActivity(Intent(this@MainActivity, AddHappyPlaceActivity::class.java))
+                startActivityForResult(Intent(this@MainActivity, AddHappyPlaceActivity::class.java), ADD_PLACE_ACTIVITY_REQUEST_CODE)
             }
         }
         getHappyPlacesListFromLocalDB()
     }
     private fun getHappyPlacesListFromLocalDB(){
-        val dbHandler = DatabaseHandler(this)
-        val getHappyPlaceList: ArrayList<HappyPlaceModel> = dbHandler.getHappyPlaceLIst()
+        binding.apply {
+            val dbHandler = DatabaseHandler(this@MainActivity)
+            val getHappyPlaceList: ArrayList<HappyPlaceModel> = dbHandler.getHappyPlaceLIst()
 
-        if(getHappyPlaceList.size > 0){
-            for (i in getHappyPlaceList){
-                Log.e("TITLE:","${i.title}")
+            if(getHappyPlaceList.size > 0){
+                rvHappyPlacesList.visibility = View.VISIBLE
+                tvNoRecordsAvailable.visibility = View.GONE
+                setupHappyPlaceRecyclerView(getHappyPlaceList)
+            }else{
+                rvHappyPlacesList.visibility = View.GONE
+                tvNoRecordsAvailable.visibility = View.VISIBLE
             }
-            binding.rvHappyPlacesList.visibility = View.VISIBLE
-            binding.tvNoRecordsAvailable.visibility = View.GONE
-            recyclerView(getHappyPlaceList)
-        }else{
-            binding.rvHappyPlacesList.visibility = View.GONE
-            binding.tvNoRecordsAvailable.visibility = View.VISIBLE
         }
     }
 
-    private fun recyclerView(list: ArrayList<HappyPlaceModel>){
-        binding.apply {
-            rvHappyPlacesList.adapter = HappyPlaceAdapter(this@MainActivity, list)
-            rvHappyPlacesList.layoutManager = LinearLayoutManager(this@MainActivity)
+    private fun setupHappyPlaceRecyclerView(happyPlaceList: ArrayList<HappyPlaceModel>){
+        binding.rvHappyPlacesList.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            setHasFixedSize(true)
+            val placesAdapter = HappyPlaceAdapter(this@MainActivity, happyPlaceList)
+            adapter = placesAdapter
+            placesAdapter.setOnClickListener(object : HappyPlaceAdapter.OnClickListener{
+                override fun onClick(position: Int, model: HappyPlaceModel) {
+                    val intent = Intent(this@MainActivity, HappyPlaceDetail::class.java)
+                    startActivity(intent)
+                }
+            })
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == ADD_PLACE_ACTIVITY_REQUEST_CODE){
+            if(resultCode == Activity.RESULT_OK){
+                getHappyPlacesListFromLocalDB()
+            }else{
+                Log.e("Activity", "Cancelled or Back pressed")
+            }
+        }
+    }
+
+    companion object{
+        private const val ADD_PLACE_ACTIVITY_REQUEST_CODE = 1
     }
 }

@@ -112,7 +112,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                             val dbHandler = DatabaseHandler(this@AddHappyPlaceActivity)
                             val addHappyPlaceResult = dbHandler.addHappyPlace(happyPlaceMode)
                             if(addHappyPlaceResult > 0){ // 정상
-                                Toast.makeText(this@AddHappyPlaceActivity, "The happy place details are inserted successfully", Toast.LENGTH_SHORT).show()
+                                setResult(Activity.RESULT_OK)
                                 finish()
                             }
                         }
