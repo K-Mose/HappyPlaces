@@ -6,11 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.happyplaces.adapter.HappyPlaceAdapter
 import com.example.happyplaces.database.DatabaseHandler
 import com.example.happyplaces.databinding.ActivityMainBinding
 import com.example.happyplaces.models.HappyPlaceModel
+import com.example.happyplaces.util.SwipeToEditCallback
 
 private lateinit var binding: ActivityMainBinding
 class MainActivity : AppCompatActivity() {
@@ -55,6 +58,18 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             })
+
+            // 어려우니 다시보자
+            // https://medium.com/@kitek/recyclerview-swipe-to-delete-easier-than-you-thought-cff67ff5e5f6
+            val editSwipeHandler = object : SwipeToEditCallback(this@MainActivity){
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val adapter = this@apply.adapter as HappyPlaceAdapter
+                    adapter.notifyEditItem(this@MainActivity, viewHolder.adapterPosition, ADD_PLACE_ACTIVITY_REQUEST_CODE)
+                }
+            }
+
+            val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
+            editItemTouchHelper.attachToRecyclerView(this)
         }
     }
 

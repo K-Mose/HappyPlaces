@@ -40,6 +40,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private var mLatitude: Double = 0.0
     private var mLongitude: Double = 0.0
 
+    private var mHappyPlaceDetails: HappyPlaceModel? = null
+
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +54,11 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 onBackPressed()
             }
 
+            if(intent.hasExtra(MainActivity.EXTRA_PLACE_DETAILS)){
+                mHappyPlaceDetails = intent.getParcelableExtra(MainActivity.EXTRA_PLACE_DETAILS)
+
+            }
+
             dateSetListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, month)
@@ -59,6 +66,19 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 updateDateInView()
             }
             updateDateInView() // 현재 날짜 생성
+
+            mHappyPlaceDetails?.also {
+                supportActionBar?.title = "Edit Happy Place"
+                etTitle.setText(mHappyPlaceDetails!!.title)
+                etDescription.setText(mHappyPlaceDetails!!.description)
+                etDate.setText(mHappyPlaceDetails!!.date)
+                etLocation.setText(mHappyPlaceDetails!!.location)
+                mLatitude = mHappyPlaceDetails!!.latitude
+                mLongitude = mHappyPlaceDetails!!.longitude
+                ivPlaceImage.setImageURI(Uri.parse(mHappyPlaceDetails!!.image))
+                btnSave.text = "UPDATE"
+            }
+
             etDate.setOnClickListener(this@AddHappyPlaceActivity)
             tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
             btnSave.setOnClickListener(this@AddHappyPlaceActivity)
