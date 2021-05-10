@@ -1,8 +1,10 @@
 package com.example.happyplaces.activities
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.happyplaces.databinding.ActivityHappyPlaceDetailBinding
+import com.example.happyplaces.models.HappyPlaceModel
 
 class HappyPlaceDetail : AppCompatActivity() {
     private lateinit var binding: ActivityHappyPlaceDetailBinding
@@ -10,6 +12,31 @@ class HappyPlaceDetail : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHappyPlaceDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        var happyPlaceDetailModel: HappyPlaceModel? = null
+
+        if(intent.hasExtra(MainActivity.EXTRA_PLACE_DETAILS)){
+            // Serializable을 다시 HappyPlaceModel로 변경
+            // Parcelable을 다시 "
+            happyPlaceDetailModel =
+                    intent.getParcelableExtra(
+                            MainActivity.EXTRA_PLACE_DETAILS)
+        }
+
+        binding.apply {
+            happyPlaceDetailModel?.also {
+                setSupportActionBar(toolbarHappyPlaceDetail)
+                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+                supportActionBar!!.title = happyPlaceDetailModel.title
+                toolbarHappyPlaceDetail.setNavigationOnClickListener {
+                    onBackPressed()
+                }
+            }
+
+            ivPlaceImage!!.setImageURI(Uri.parse(happyPlaceDetailModel!!.image))
+            tvDescription!!.text = happyPlaceDetailModel!!.description
+            tvLocation!!.text = happyPlaceDetailModel!!.location
+        }
 
     }
 }

@@ -50,6 +50,8 @@ class MainActivity : AppCompatActivity() {
             placesAdapter.setOnClickListener(object : HappyPlaceAdapter.OnClickListener{
                 override fun onClick(position: Int, model: HappyPlaceModel) {
                     val intent = Intent(this@MainActivity, HappyPlaceDetail::class.java)
+                    // intent에 Serializable?로 넣을 수 있어서 model을 Serializable로 바꾼다
+                    intent.putExtra(EXTRA_PLACE_DETAILS, model)
                     startActivity(intent)
                 }
             })
@@ -69,5 +71,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         private const val ADD_PLACE_ACTIVITY_REQUEST_CODE = 1
+        var EXTRA_PLACE_DETAILS = "extra_place_details"
     }
 }
