@@ -76,6 +76,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 mLatitude = mHappyPlaceDetails!!.latitude
                 mLongitude = mHappyPlaceDetails!!.longitude
                 ivPlaceImage.setImageURI(Uri.parse(mHappyPlaceDetails!!.image))
+                savedPath = Uri.parse(mHappyPlaceDetails!!.image)
                 btnSave.text = "UPDATE"
             }
 
@@ -120,7 +121,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                         savedPath == null -> Toast.makeText(this@AddHappyPlaceActivity, "Please Select an Image", Toast.LENGTH_SHORT).show()
                         else -> {
                             val happyPlaceMode = HappyPlaceModel(
-                                    0,
+                                    if(mHappyPlaceDetails == null) 0 else mHappyPlaceDetails!!.id,
                                     etTitle.text.toString(),
                                     savedPath.toString(),
                                     etDescription.text.toString(),
@@ -130,11 +131,20 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                                     mLongitude
                             )
                             val dbHandler = DatabaseHandler(this@AddHappyPlaceActivity)
-                            val addHappyPlaceResult = dbHandler.addHappyPlace(happyPlaceMode)
-                            if(addHappyPlaceResult > 0){ // 정상
-                                setResult(Activity.RESULT_OK)
-                                finish()
+                            if(mHappyPlaceDetails == null){
+                                val addHappyPlaceResult = dbHandler.addHappyPlace(happyPlaceMode)
+                                if(addHappyPlaceResult > 0){ // 정상
+                                    setResult(Activity.RESULT_OK)
+                                    finish()
+                                }
+                            }else{
+                                val addHappyPlaceResult = dbHandler.updateHappyPlace(happyPlaceMode)
+                                if(addHappyPlaceResult > 0){
+                                    setResult(Activity.RESULT_OK)
+                                    finish()
+                                }
                             }
+
                         }
                     }
 
