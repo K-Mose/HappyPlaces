@@ -13,6 +13,7 @@ import com.example.happyplaces.adapter.HappyPlaceAdapter
 import com.example.happyplaces.database.DatabaseHandler
 import com.example.happyplaces.databinding.ActivityMainBinding
 import com.example.happyplaces.models.HappyPlaceModel
+import com.example.happyplaces.util.SwipeToDeleteCallback
 import com.example.happyplaces.util.SwipeToEditCallback
 
 private lateinit var binding: ActivityMainBinding
@@ -67,9 +68,19 @@ class MainActivity : AppCompatActivity() {
                     adapter.notifyEditItem(this@MainActivity, viewHolder.adapterPosition, ADD_PLACE_ACTIVITY_REQUEST_CODE)
                 }
             }
+            val deleteSwipeHandler = object : SwipeToDeleteCallback(this@MainActivity){
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val adapter = this@apply.adapter as HappyPlaceAdapter
+                    adapter.removeAt(viewHolder.adapterPosition)
+                    getHappyPlacesListFromLocalDB()
+                }
+            }
 
             val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
             editItemTouchHelper.attachToRecyclerView(this)
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(this)
+
         }
     }
 
