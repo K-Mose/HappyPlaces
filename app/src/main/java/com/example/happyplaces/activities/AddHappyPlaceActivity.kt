@@ -1,6 +1,7 @@
 package com.example.happyplaces.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
@@ -9,9 +10,12 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
+import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
@@ -21,6 +25,7 @@ import com.example.happyplaces.R
 import com.example.happyplaces.database.DatabaseHandler
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.example.happyplaces.models.HappyPlaceModel
+import com.google.android.gms.location.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -47,6 +52,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private var mHappyPlaceDetails: HappyPlaceModel? = null
 
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
+
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +65,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             toolbarAddPlace.setNavigationOnClickListener {
                 onBackPressed()
             }
+
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this@AddHappyPlaceActivity)
 
             if(!Places.isInitialized()){
                 Places.initialize(this@AddHappyPlaceActivity, resources.getString(R.string.google_map_api_key))
@@ -90,10 +99,13 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 btnSave.text = "UPDATE"
             }
 
+            // 현재 컨텍스트가 View.OnClickListener 상속하고 있어서
+            // setOnClickListener(this)로 할당 가능, -> override된 onClick() 함수에 넘김
             etDate.setOnClickListener(this@AddHappyPlaceActivity)
             tvAddImage.setOnClickListener(this@AddHappyPlaceActivity)
             btnSave.setOnClickListener(this@AddHappyPlaceActivity)
             etLocation.setOnClickListener(this@AddHappyPlaceActivity)
+            tvSelectCurrentLocation.setOnClickListener(this@AddHappyPlaceActivity)
         }
 
 
@@ -177,6 +189,61 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     e.printStackTrace()
                 }
             }
+            R.id.tv_select_current_location ->{
+                if(!isLocationEnabled()){
+                    Toast.makeText(
+                        this@AddHappyPlaceActivity,
+                        "Your location provider is turned off. Please turn it on.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                }else{
+                    Dexter.withActivity(this@AddHappyPlaceActivity).withPermissions(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ).withListener(object: MultiplePermissionsListener{
+                        override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                            requestNewLocationData()
+                        }
+
+                        override fun onPermissionRationaleShouldBeShown(
+                            permissions: MutableList<PermissionRequest>?,
+                            token: PermissionToken?
+                        ) {
+                            showRationalDialogForPermissions()
+                        }
+                    }).onSameThread().check()
+                }
+            }
+        }
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        Log.e("LocationProvider","실행")
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData(){
+        Log.e("RequestNewLocationData","실행")
+        val mLocationRequest = LocationRequest()
+        mLocationRequest.apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = 1000
+            numUpdates = 1
+        }
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
+    }
+
+    private val mLocationCallback = object : LocationCallback(){
+        override fun onLocationResult(locationResult: LocationResult?) {
+            val mLastLocation: Location = locationResult!!.lastLocation
+            mLatitude = mLastLocation.latitude
+            mLongitude = mLastLocation.longitude
+            Log.e("Current LATnLONG:","$mLatitude, $mLongitude")
+            Toast.makeText(this@AddHappyPlaceActivity, "Current LATnLONG: $mLatitude, $mLongitude", Toast.LENGTH_SHORT).show()
         }
     }
 

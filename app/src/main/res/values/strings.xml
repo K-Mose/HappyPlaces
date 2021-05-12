@@ -13,4 +13,6 @@
     <string name="google_map_api_key">AIzaSyB3J_P9UliUVtyWy6jh7fU2U_2ZNFX8lVc</string>
 
     <string name="btn_text_view_on_map">VIEW ON MAP</string>
+
+    <string name="add_place_select_current_location_text">SELECT CURRENT LOCATION</string>
 </resources>

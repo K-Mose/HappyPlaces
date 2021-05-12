@@ -41,13 +41,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap?) {
         // 맵이 준비되었을 때, 마커 설정
         val position = LatLng(mHappyPlaceDetail!!.latitude, mHappyPlaceDetail!!.longitude)
-        googleMap!!
-                .addMarker(
-                        MarkerOptions()
-                                .position(position)
-                                .title(mHappyPlaceDetail!!.title)
-                )
-        val newLatLngZoom = CameraUpdateFactory.newLatLngZoom(position, 12f)
-        googleMap!!.animateCamera(newLatLngZoom)
+        googleMap?.apply {
+            addMarker(MarkerOptions().position(position).title(mHappyPlaceDetail!!.title))
+            animateCamera(CameraUpdateFactory.newLatLngZoom(position, 12f))
+        }
     }
 }
