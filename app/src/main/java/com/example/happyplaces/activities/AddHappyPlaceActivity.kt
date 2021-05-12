@@ -25,6 +25,7 @@ import com.example.happyplaces.R
 import com.example.happyplaces.database.DatabaseHandler
 import com.example.happyplaces.databinding.ActivityAddHappyPlaceBinding
 import com.example.happyplaces.models.HappyPlaceModel
+import com.example.happyplaces.util.GetAddressFromLatLong
 import com.google.android.gms.location.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -221,13 +222,11 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun isLocationEnabled(): Boolean {
         val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        Log.e("LocationProvider","실행")
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     @SuppressLint("MissingPermission")
     private fun requestNewLocationData(){
-        Log.e("RequestNewLocationData","실행")
         val mLocationRequest = LocationRequest()
         mLocationRequest.apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -243,7 +242,18 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             mLatitude = mLastLocation.latitude
             mLongitude = mLastLocation.longitude
             Log.e("Current LATnLONG:","$mLatitude, $mLongitude")
-            Toast.makeText(this@AddHappyPlaceActivity, "Current LATnLONG: $mLatitude, $mLongitude", Toast.LENGTH_SHORT).show()
+
+            val addressTask = GetAddressFromLatLong(this@AddHappyPlaceActivity, mLatitude, mLongitude)
+            addressTask.setAddressListener(object : GetAddressFromLatLong.AddressListener{
+                override fun onAddressFound(address: String?) {
+                    binding.etLocation.setText(address)
+                }
+
+                override fun onError() {
+                    Log.e("Get Address::", "Something went wrong")
+                }
+            })
+            addressTask.getAddress()
         }
     }
 
